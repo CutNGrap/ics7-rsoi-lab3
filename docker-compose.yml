@@ -9,12 +9,82 @@ services:
       POSTGRES_PASSWORD: "postgres"
       POSTGRES_DB: postgres
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - ./db-data:/var/lib/postgresql/data
       - ./postgres/:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U program -d cars"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  
+  cars:
+    depends_on: 
+      postgres:
+        condition: service_healthy
+    container_name: cars
+    restart: on-failure
+    build:
+      dockerfile: ./app/CarsService/Dockerfile
+      args:
+        database_url: "postgresql://program:test@autorack.proxy.rlwy.net:52848/cars"
+    ports:
+      - "8070:8070"
+    networks:
+      - app
+  
+  rentals:
+    depends_on: 
+      postgres:
+        condition: service_healthy
+    container_name: rentals
+    restart: on-failure
+    build:
+      dockerfile: ./app/RentalService/Dockerfile
+      args:
+        database_url: "postgresql://program:test@autorack.proxy.rlwy.net:52848/rentals"
+    ports:
+      - "8060:8060"
+    networks:
+      - app
+  
+  payments:
+    depends_on: 
+      postgres:
+        condition: service_healthy
+    container_name: payments
+    restart: on-failure
+    build:
+      dockerfile: ./app/PaymentService/Dockerfile
+      args:
+        database_url: "postgresql://program:test@autorack.proxy.rlwy.net:52848/payments"
+    ports:
+      - "8050:8050"
+    networks:
+      - app
+  
+  gateway:
+    depends_on: 
+      - postgres
+      - rentals
+      - cars
+      - payments
+    container_name: gateway
+    restart: on-failure
+    build:
+      dockerfile: ./app/GatewayService/Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - app
 
-# TODO добавить сервисы
+
+networks:
+  app:
 
 volumes:
   db-data:
