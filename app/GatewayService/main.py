@@ -134,6 +134,8 @@ def get_user_rentals(
                 try:
                     paymentResponse = reqSession.get(f"http://{paymentsApi}/payment/{paymentUid}")
                     circuitBreaker.appendOK(paymentResponse)
+                    if paymentResponse.status_code == HTTPStatus.NOT_FOUND:
+                        raise HTTPException(status_code=404, detail="Couldnt finde payment")
                     paymentResponseData = paymentResponse.json()
                 except requests.ConnectionError:
                     circuitBreaker.append(paymentsHost)
@@ -143,9 +145,6 @@ def get_user_rentals(
                 # return JSONResponse(content={"message": "Cars Service unavailable"}, status_code=503)
                 paymentResponseData = None
             # 
-
-            if paymentResponse.status_code == HTTPStatus.NOT_FOUND:
-                raise HTTPException(status_code=404, detail="Couldnt finde payment")
 
             if (carResponseData is None):
                 carData = CarData(
@@ -235,6 +234,8 @@ def get_rental_details(
             try:
                 paymentResponse = reqSession.get(f"http://{paymentsApi}/payment/{paymentUid}")
                 circuitBreaker.appendOK(paymentResponse)
+                if paymentResponse.status_code == HTTPStatus.NOT_FOUND:
+                    raise HTTPException(status_code=404, detail="Couldnt finde payment")
                 paymentResponseData = paymentResponse.json()
             except requests.ConnectionError:
                 circuitBreaker.append(paymentsHost)
@@ -245,12 +246,11 @@ def get_rental_details(
             paymentResponseData = None
         # 
 
-        if paymentResponse.status_code == HTTPStatus.NOT_FOUND:
-            raise HTTPException(status_code=404, detail="Couldnt finde payment")
 
         if (carResponseData is None):
-            carData = CarData(
-                carUid = carUid)
+            carData = {
+                "carUid": carUid
+            }
         else:
             carData = CarData(
                 carUid = carResponseData["carUid"],
@@ -260,8 +260,9 @@ def get_rental_details(
             )
 
         if (paymentResponseData is None):
-            paymentData = PaymentData(
-                paymentUid = paymentUid)
+            paymentData = {
+                "paymentUid": paymentUid
+            }
         else:
             paymentData = PaymentData(
                 paymentUid = paymentUid,
