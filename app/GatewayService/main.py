@@ -158,8 +158,7 @@ def get_user_rentals(
                 )
 
             if (paymentResponseData is None):
-                paymentData = PaymentData(
-                    paymentUid = paymentUid)
+                paymentData = PaymentData()
             else:
                 paymentData = PaymentData(
                     paymentUid = paymentUid,
