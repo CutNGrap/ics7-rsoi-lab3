@@ -24,14 +24,14 @@ class CarDataJson(BaseModel):
 
 class CarData(BaseModel):
     carUid: str
-    brand: str
-    model: str
-    registrationNumber: str
+    brand: Optional[str] = None
+    model: Optional[str] = None
+    registrationNumber: Optional[str] = None
 
 class PaymentData(BaseModel):
     paymentUid: str
-    status: str
-    price: int
+    status: Optional[str] = None
+    price: Optional[int] = None
 
 class RentalResponse(BaseModel):
     rentalUid: str
@@ -40,6 +40,7 @@ class RentalResponse(BaseModel):
     dateTo: str
     car: CarData
     payment: PaymentData
+
 
 class CreateRentalRequest(BaseModel):
     carUid: UUID4
