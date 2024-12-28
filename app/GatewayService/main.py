@@ -506,16 +506,16 @@ def cancel_rental(
     # rental_finish_response = reqSession.put(f"http://{rentalsApi}/rentals/{rentalUid}/cancel",json=cancel_rental_data,headers={"X-User-Name": username})
     if circuitBreaker.isBlocked(rentalsHost):
         try:
-            rental_finish_response = reqSession.get(f"http://{rentalsHost}/rentals/{rentalUid}/cancel",json=cancel_rental_data,headers={"X-User-Name": username})
+            rental_finish_response = reqSession.put(f"http://{rentalsApi}/rentals/{rentalUid}/cancel",json=cancel_rental_data,headers={"X-User-Name": username})
             circuitBreaker.appendOK(rentalsHost)
             if rental_finish_response.status_code == HTTPStatus.NOT_FOUND:
                 raise HTTPException(status_code=404, detail="Rental not found")
         except requests.ConnectionError as ex:
             print(ex)
             circuitBreaker.append(rentalsHost)
-            requestManager.append(lambda: reqSession.get(f"http://{rentalsHost}/rentals/{rentalUid}/cancel",json=cancel_rental_data,headers={"X-User-Name": username}))
+            requestManager.append(lambda: reqSession.get(f"http://{rentalsApi}/rentals/{rentalUid}/cancel",json=cancel_rental_data,headers={"X-User-Name": username}))
     else:
-        requestManager.append(lambda: reqSession.get(f"http://{rentalsHost}/rentals/{rentalUid}/cancel",json=cancel_rental_data,headers={"X-User-Name": username}))
+        requestManager.append(lambda: reqSession.get(f"http://{rentalsApi}/rentals/{rentalUid}/cancel",json=cancel_rental_data,headers={"X-User-Name": username}))
     # 
 
 
