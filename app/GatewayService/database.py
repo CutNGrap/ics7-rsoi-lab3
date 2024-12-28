@@ -39,7 +39,7 @@ class RentalResponse(BaseModel):
     dateFrom: str
     dateTo: str
     car: CarData
-    payment: Optional[PaymentData]
+    payment: PaymentData | dict
 
 
 class CreateRentalRequest(BaseModel):
