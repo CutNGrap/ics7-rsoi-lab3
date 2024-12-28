@@ -39,7 +39,7 @@ class RentalResponse(BaseModel):
     dateFrom: str
     dateTo: str
     car: CarData
-    payment: PaymentData
+    payment: Optional[PaymentData]
 
 
 class CreateRentalRequest(BaseModel):

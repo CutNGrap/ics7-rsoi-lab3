@@ -260,9 +260,10 @@ def get_rental_details(
             )
 
         if (paymentResponseData is None):
-            paymentData = {
-                "paymentUid": paymentUid
-            }
+            paymentData = None
+            # paymentData = {
+            #     "paymentUid": paymentUid
+            # }
         else:
             paymentData = PaymentData(
                 paymentUid = paymentUid,
