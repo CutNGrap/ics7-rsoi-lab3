@@ -216,6 +216,8 @@ def get_rental_details(
             try:
                 carResponse = reqSession.get(f"http://{carsApi}/cars/{carUid}?showAll=true")
                 circuitBreaker.appendOK(carsHost)
+                if carResponse.status_code == HTTPStatus.NOT_FOUND:
+                    raise HTTPException(status_code=404, detail="Couldnt finde car")
                 carResponseData = carResponse.json()
             except requests.ConnectionError:
                 circuitBreaker.append(carsHost)
@@ -226,8 +228,6 @@ def get_rental_details(
             carResponseData = None
         # 
 
-        if carResponse.status_code == HTTPStatus.NOT_FOUND:
-            raise HTTPException(status_code=404, detail="Couldnt finde car")
         # 
         # payResponse = reqSession.get(f"http://{paymentsApi}/payment/{paymentUid}")
         if circuitBreaker.isBlocked(paymentsHost):
